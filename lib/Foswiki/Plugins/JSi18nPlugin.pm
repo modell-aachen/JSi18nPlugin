@@ -27,13 +27,13 @@ sub initPlugin {
         return 0;
     }
 
-    Foswiki::Func::registerTagHandler( 'JSI18NID', \&_JSI18NID );
+    Foswiki::Func::registerTagHandler( 'JSI18NID', \&_JSI18NIDTAG );
 
     # Plugin correctly initialized
     return 1;
 }
 
-sub _EXAMPLETAG {
+sub _JSI18NIDTAG {
     #my($session, $params, $topic, $web, $topicObject) = @_;
 
     my $id = 'jsi18nCore';
