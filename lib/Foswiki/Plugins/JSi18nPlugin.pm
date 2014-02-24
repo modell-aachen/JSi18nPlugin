@@ -8,10 +8,9 @@ use warnings;
 use Foswiki::Func    ();    # The plugins API
 use Foswiki::Plugins ();    # For the API version
 
-our $VERSION = '$Rev: 7808 (2010-06-15) $';
-#use version; our $VERSION = version->declare("v1.0.0_001");
+our $VERSION = '1.0';
 
-our $RELEASE = '0.0.1';
+our $RELEASE = '1.0';
 
 our $SHORTDESCRIPTION = 'Translations for JavaScript';
 
