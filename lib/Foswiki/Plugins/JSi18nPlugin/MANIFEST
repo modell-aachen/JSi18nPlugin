@@ -1,0 +1,5 @@
+!noci
+data/System/JSi18nPlugin.txt 0644 Documentation page
+lib/Foswiki/Plugins/JSi18nPlugin.pm 0444 Perl module
+lib/Foswiki/Plugins/JSi18nPlugin/Config.spec 0444 Configuration
+pub/System/JSi18nPlugin/jsi18n.js core script
