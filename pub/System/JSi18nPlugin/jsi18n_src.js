@@ -46,3 +46,5 @@ jsi18n = (function() {
         }
     };
 })();
+
+if(window.foswiki) window.foswiki.jsi18n = jsi18n;

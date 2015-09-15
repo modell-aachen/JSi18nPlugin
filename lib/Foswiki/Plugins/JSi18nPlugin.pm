@@ -36,7 +36,7 @@ sub _JSI18NIDTAG {
     #my($session, $params, $topic, $web, $topicObject) = @_;
 
     my $id = 'jsi18nCore';
-    Foswiki::Func::addToZone('script', $id, <<'SCRIPT', undef);
+    Foswiki::Func::addToZone('script', $id, <<'SCRIPT', 'JQUERYPLUGIN::FOSWIKI::PREFERENCES');
 <script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/JSi18nPlugin/jsi18n.js'></script>
 SCRIPT
 
