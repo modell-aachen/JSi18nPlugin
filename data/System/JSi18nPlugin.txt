@@ -3,43 +3,53 @@
 One line description, required for extensions repository catalog.
    * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
 -->
----+!! Empty Plugin
+---+!! JSi18n Plugin
 
 %SHORTDESCRIPTION%
 
 %TOC%
 
-Learn how to create your own plugin in %SYSTEMWEB%.DevelopingPlugins.
+---++ Usage
 
----++ Preferences
+This plugin is a simple helper for translating strings in !JavaScript. It provides a method for getting translations and a way to register them.
 
-Plugin preferences should be set using =configure=, as described in
-%SYSTEMWEB%.DevelopingPlugins.
+---++ Getting translations in !JavaScript
 
-You can also use [[%SYSTEMWEB%.PreferenceSettings][preference settings]]
-to define any user-controllable configuration. You are strongly advised
-to use the name of the plugin as a prefix, to avoid the risk of namespace
-clashes with other extensions that may try to use the same name.
+To get a translation, you need an _id_ (of your choosing) and the string to be translated. Simply call the plugin like this:<verbatim>foswiki.jsi18n.get('MyId', 'My translation with parameters [_1] and [_2].', myParameter1, myParameter2)</verbatim>
+You should require =%%NOP%JSI18NID%= or the id of your registered translation, when adding your scripts.
 
-*BAD*
-   * Set EXAMPLE = Example setting
-   * Set FORMAT  = %d-%m-%y
-*Good*
-   * Set EMPTYPLUGIN_EXAMPLE = Example setting
-   * Set EMPTYPLUGIN_FORMAT  = %d-%m-%y
+If there is no translation for the current language, the English file will be added. IF there is no English file either, nothing will be added at all.
+
+---++ Registering translations
+
+Suppose, your translations are in the file =pub/System/MyPlugin/jsi18n.MyId.js=, then you can register that translation with =%%NOP%JSI18N{"MyPlugin" id="MyId"}%=, it will be added to the script zone with the id =jsi18n:<em>PluginName</em>:<em>Id</em>= (in this case =jsi18n:MyPlugin:MyId=).%BR%
+If your translation is in some obscure place, it is possible to specify the folder yourself like this: =%%NOP%JSI18N{id="MyId" folder="%%NOP%PUBURLPATH%/MyWeb/MyTopic"}%=, the file will be added to the script zone with the id =jsi18n:<em>folder</em>:<em>id</em>= (in this case: =jsi18n:%PUBRULPATH%/MyWeb/MyTopic:MyId=).
+
+---++ Creating translations
+
+Create a !JavaScript file with the name schema =jsi18n.<em>id</em>.<em>language</em>.js= or =jsi18n.<em>id</em>.<em>language</em>.min.js=, eg. =%%NOP%PUBURLPATH%/%%NOP%SYSTEMWEB%/MyPlugin/jsi18n.MyId.tlh.js=. It should look like this:<verbatim>
+jsi18n.add('MyId', {
+  "Today is a good day to die.": "Heghlu’meH QaQ jajvam.",
+  "Welcome to the [_1] web": "[_1] mIchDaq nuqneH"
+});
+</verbatim>
+
+---++ Calling the plugin from perl
+
+You can add a translation with =Foswiki::Plugins::JSi18nPlugin::JSI18N($session, $plugin, $id)= (analog to =%%NOP%JSI18N{"$plugin" id="$id"}%=) or =Foswiki::Plugins::JSi18nPlugin::JSI18NByFolder($session, $foler, $id)= (analog to =%%NOP%JSI18N{folder="$folder" id="$id"}%=). Both return the name of the file actually added.
 
 ---++ Installation
 %$INSTALL_INSTRUCTIONS%
 
 ---++ Info
 
-|  Author: | StephanOsthold |
-|  Copyright: | %$CREATEDYEAR%, StephanOsthold, All Rights Reserved |
+|  Author: | Modell Aachen GmbH |
+|  Copyright: | %$CREATEDYEAR%, Modell Aachen GmbH, All Rights Reserved |
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
 |  Dependencies: | %$DEPENDENCIES% |
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change&nbsp;History: | <!-- versions below in reverse order -->&nbsp; |
 |  1.0.0 (%$CREATEDATE%): | Initial version |
-|  Home: | http://foswiki.org/Extensions/%TOPIC% |
-|  Support: | http://foswiki.org/Support/%TOPIC% |
+|  Home: | http://modell-aachen.de |
+|  Support: | http://modell-aachen.de |

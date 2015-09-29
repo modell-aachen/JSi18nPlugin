@@ -16,6 +16,9 @@ our $SHORTDESCRIPTION = 'Translations for JavaScript';
 
 our $NO_PREFS_IN_TOPIC = 1;
 
+our %seen = ();
+our %absent = ();
+
 sub initPlugin {
     my ( $topic, $web ) = @_;
 
@@ -27,9 +30,80 @@ sub initPlugin {
     }
 
     Foswiki::Func::registerTagHandler( 'JSI18NID', \&_JSI18NIDTAG );
+    Foswiki::Func::registerTagHandler( 'JSI18N', \&_JSI18NTAG );
 
     # Plugin correctly initialized
     return 1;
+}
+
+sub _getFile {
+    my($session, $folder, $id) = @_;
+
+    return unless $folder;
+    my $file = $folder."/jsi18n.";
+    $file .= "$id." if $id;
+
+    my $lang = $session->i18n->language();
+
+    my $prefix = "$Foswiki::cfg{PubDir}/$file";
+    foreach my $suffix ( ("$lang.min.js", "$lang.js", 'en.js') ) {
+        my $localfile = $prefix.$suffix;
+        return $file.$suffix if $seen{$localfile};
+        next if $absent{$localfile};
+        if ( -e $prefix.$suffix ) {
+            $seen{$localfile} = 1;
+            return $file.$suffix;
+        } else {
+            $absent{$localfile} = 1;
+        }
+    }
+}
+
+sub JSI18NByFolder {
+    my($session, $folder, $id) = @_;
+
+    my $file = _getFile($session, $folder, $id);
+    return unless $file;
+
+    my $addToZoneId = "jsi18n:$folder:$id";
+
+    Foswiki::Func::addToZone('script', $addToZoneId, <<"SCRIPT", 'jsi18nCore');
+<script type='text/javascript' src='\%PUBURLPATH\%/$file'></script>
+SCRIPT
+
+    return $file;
+}
+
+sub JSI18N {
+    my($session, $plugin, $id) = @_;
+
+    my $folder = "$Foswiki::cfg{SystemWebName}/$plugin";
+
+    my $file = _getFile($session, $folder, $id);
+    return unless $file;
+
+    my $addToZoneId = "jsi18n:$plugin:$id";
+
+    Foswiki::Func::addToZone('script', $addToZoneId, <<"SCRIPT", 'jsi18nCore');
+<script type='text/javascript' src='\%PUBURLPATH\%/$file'></script>
+SCRIPT
+
+    return $file;
+}
+
+sub _JSI18NTAG {
+    my($session, $params, $topic, $web, $topicObject) = @_;
+
+    my $plugin = $params->{_DEFAULT};
+    my $folder = (($plugin) ? "$Foswiki::cfg{SystemWebName}/$plugin" : $params->{folder});
+    my $file = _getFile($session, $folder, $params->{id});
+
+    return '' unless $file;
+
+    my $addToZoneId = "jsi18n:".( ($plugin) ? $plugin : $params->{folder} ).":$params->{id}";
+
+    # Note: we do not use Foswiki::Func::addToZone, so we do not mess with SafeWikiPlugin
+    return '%ADDTOZONE{"script" id="'.$addToZoneId.'" requires="%JSI18NID%" text="<script src=\'%PUBURLPATH%/'.$file.'\'></script>"}%';
 }
 
 sub _JSI18NIDTAG {
