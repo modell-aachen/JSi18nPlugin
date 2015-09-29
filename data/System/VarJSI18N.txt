@@ -1,0 +1,2 @@
+This macro is part of [[%SYSTEMWEB%.JSi18nPlugin]].
+
