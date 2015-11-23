@@ -100,7 +100,7 @@ sub _JSI18NTAG {
 
     return '' unless $file;
 
-    my $addToZoneId = "jsi18n:".( ($plugin) ? $plugin : $params->{folder} ).":$params->{id}";
+    my $addToZoneId = "jsi18n:".( ($plugin) ? $plugin : $params->{folder} ).":".($params->{id} || 'jsi18n');
 
     # Note: we do not use Foswiki::Func::addToZone, so we do not mess with SafeWikiPlugin
     return '%ADDTOZONE{"script" id="'.$addToZoneId.'" requires="%JSI18NID%" text="<script src=\'%PUBURLPATH%/'.$file.'\'></script>"}%';
