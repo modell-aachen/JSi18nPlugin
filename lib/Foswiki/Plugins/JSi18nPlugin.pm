@@ -8,6 +8,8 @@ use warnings;
 use Foswiki::Func    ();    # The plugins API
 use Foswiki::Plugins ();    # For the API version
 
+use Foswiki::Macros::MAKETEXT ();
+
 our $VERSION = '1.0';
 
 our $RELEASE = '1.0';
@@ -31,6 +33,7 @@ sub initPlugin {
 
     Foswiki::Func::registerTagHandler( 'JSI18NID', \&_JSI18NIDTAG );
     Foswiki::Func::registerTagHandler( 'JSI18N', \&_JSI18NTAG );
+    Foswiki::Func::registerTagHandler( 'MAKETEXT', \&_MAKETEXT );
 
     # Plugin correctly initialized
     return 1;
@@ -115,6 +118,69 @@ sub _JSI18NIDTAG {
 SCRIPT
 
     return $id;
+}
+
+# Mostly copied from core, but adds 'split' and 'arg**' (positional) parameters
+sub _MAKETEXT {
+    my ( $this, $params ) = @_;
+
+    my $str = $params->{_DEFAULT} || $params->{string} || "";
+    return "" unless $str;
+
+    # escape everything:
+    $str =~ s/\[/~[/g;
+    $str =~ s/\]/~]/g;
+
+    # restore already escaped stuff:
+    $str =~ s/~~+\[/~[/g;
+    $str =~ s/~~+\]/~]/g;
+
+    my $max         = 0;
+    my $min         = 1;
+    my $param_error = 0;
+
+    # unescape parameters and calculate highest parameter number:
+    $str =~ s/~\[(\_(\d+))~\]/Foswiki::_validate($1, $2, $max, $min, $param_error)/ge;
+    $str =~
+s/~\[(\*,\_(\d+),[^,]+(,([^,]+))?)~\]/ Foswiki::_validate($1, $2, $max, $min, $param_error)/ge;
+    return $str if ($param_error);
+
+    # get the args to be interpolated.
+    my $argsStr = $params->{args};
+    my @args;
+
+    # Escape any escapes.
+    $str =~ s#\\#\\\\#g
+      if ( $Foswiki::cfg{UserInterfaceInternationalisation}
+        && $Locale::Maketext::VERSION
+        && $Locale::Maketext::VERSION < 1.23 );    # escape any escapes
+
+    if ( defined $argsStr ) {
+        my $split = $params->{split} || qr/\s*,\s*/;
+        @args = split( /$split/, $argsStr );
+
+        # fill omitted args with empty strings
+        while ( ( scalar(@args) ) < $max ) {
+            push( @args, '' );
+        }
+    } else {
+        my $idx = 0;
+        while (++$idx <= $max) {
+            push @args, $params->{"arg$idx"} || '';
+        }
+    }
+
+    # do the magic:
+    my $result = $this->i18n->maketext( $str, @args );
+
+    # replace accesskeys:
+    $result =~
+      s#(^|[^&])&([a-zA-Z])#$1<span class='foswikiAccessKey'>$2</span>#g;
+
+    # replace escaped amperstands:
+    $result =~ s/&&/\&/g;
+
+    return $result;
 }
 
 
