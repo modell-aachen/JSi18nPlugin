@@ -8,6 +8,7 @@ use warnings;
 use Foswiki::Func    ();    # The plugins API
 use Foswiki::Plugins ();    # For the API version
 
+use Foswiki::Plugins::QueryVersionPlugin;
 use Foswiki::Macros::MAKETEXT ();
 
 our $VERSION = '1.0';
@@ -105,16 +106,21 @@ sub _JSI18NTAG {
 
     my $addToZoneId = "jsi18n:".( ($plugin) ? $plugin : $params->{folder} ).":".($params->{id} || 'jsi18n');
 
+    my $version = '';
+    if($Foswiki::cfg{Plugins}{QueryVersionPlugin}{Enabled}) {
+        $version = Foswiki::Plugins::QueryVersionPlugin::query($session, { name => $plugin }, $topic, $web, $topicObject);
+    }
+
     # Note: we do not use Foswiki::Func::addToZone, so we do not mess with SafeWikiPlugin
-    return '%ADDTOZONE{"script" id="'.$addToZoneId.'" requires="%JSI18NID%" text="<script src=\'%PUBURLPATH%/'.$file.'\'></script>"}%';
+    return '%ADDTOZONE{"script" id="'.$addToZoneId.'" requires="%JSI18NID%" text="<script src=\'%PUBURLPATH%/'.$file.'?version='.$version.'\'></script>"}%';
 }
 
 sub _JSI18NIDTAG {
     #my($session, $params, $topic, $web, $topicObject) = @_;
 
     my $id = 'jsi18nCore';
-    Foswiki::Func::addToZone('script', $id, <<'SCRIPT', 'JQUERYPLUGIN::FOSWIKI::PREFERENCES');
-<script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/JSi18nPlugin/jsi18n.js'></script>
+    Foswiki::Func::addToZone('script', $id, <<"SCRIPT", 'JQUERYPLUGIN::FOSWIKI::PREFERENCES');
+<script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/JSi18nPlugin/jsi18n.js?version=$VERSION'></script>
 SCRIPT
 
     return $id;
