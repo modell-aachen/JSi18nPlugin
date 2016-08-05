@@ -1,0 +1,2 @@
+# Dependencies for JSi18nPlugin
+Foswiki::Plugins::QueryVersionPlugin,>=1.0,perl,Required
