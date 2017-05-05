@@ -34,7 +34,7 @@ sub initPlugin {
 
     Foswiki::Func::registerTagHandler( 'JSI18NID', \&_JSI18NIDTAG );
     Foswiki::Func::registerTagHandler( 'JSI18N', \&_JSI18NTAG );
-    Foswiki::Func::registerTagHandler( 'MAKETEXT', \&_MAKETEXT );
+    Foswiki::Func::registerTagHandler( 'MAKETEXT', \&MAKETEXT );
 
     # Plugin correctly initialized
     return 1;
@@ -127,7 +127,7 @@ SCRIPT
 }
 
 # Mostly copied from core, but adds 'split' and 'arg**' (positional) parameters
-sub _MAKETEXT {
+sub MAKETEXT {
     my ( $this, $params ) = @_;
 
     my $str = $params->{_DEFAULT} || $params->{string} || "";
