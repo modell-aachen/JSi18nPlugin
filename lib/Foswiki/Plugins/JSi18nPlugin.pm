@@ -66,6 +66,10 @@ sub _getFile {
 sub JSI18NByFolder {
     my($session, $folder, $id) = @_;
 
+    $id ||= '';
+
+    my $jsI18nId = _JSI18NIDTAG();
+
     my $file = _getFile($session, $folder, $id);
     return unless $file;
 
@@ -81,6 +85,10 @@ SCRIPT
 sub JSI18N {
     my($session, $plugin, $id) = @_;
 
+    $id ||= '';
+
+    my $jsI18nId = _JSI18NIDTAG();
+
     my $folder = "$Foswiki::cfg{SystemWebName}/$plugin";
 
     my $file = _getFile($session, $folder, $id);
@@ -88,7 +96,7 @@ sub JSI18N {
 
     my $addToZoneId = "jsi18n:$plugin:$id";
 
-    Foswiki::Func::addToZone('script', $addToZoneId, <<"SCRIPT", 'jsi18nCore');
+    Foswiki::Func::addToZone('script', $addToZoneId, <<"SCRIPT", $jsI18nId);
 <script type='text/javascript' src='\%PUBURLPATH\%/$file'></script>
 SCRIPT
 
@@ -97,6 +105,8 @@ SCRIPT
 
 sub _JSI18NTAG {
     my($session, $params, $topic, $web, $topicObject) = @_;
+
+    my $jsI18nId = _JSI18NIDTAG();
 
     my $plugin = $params->{_DEFAULT};
     my $folder = (($plugin) ? "$Foswiki::cfg{SystemWebName}/$plugin" : $params->{folder});
@@ -112,7 +122,7 @@ sub _JSI18NTAG {
     }
 
     # Note: we do not use Foswiki::Func::addToZone, so we do not mess with SafeWikiPlugin
-    return '%ADDTOZONE{"script" id="'.$addToZoneId.'" requires="%JSI18NID%" text="<script src=\'%PUBURLPATH%/'.$file.'?version='.$version.'\'></script>"}%';
+    return '%ADDTOZONE{"script" id="'.$addToZoneId.'" requires="'.$jsI18nId.'" text="<script src=\'%PUBURLPATH%/'.$file.'?version='.$version.'\'></script>"}%';
 }
 
 sub _JSI18NIDTAG {
